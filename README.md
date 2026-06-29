@@ -8,6 +8,52 @@ The implementation is developed using Python and PyTorch, with Optuna employed f
 
 ---
 
+---
+
+## Dataset Description
+
+The proposed VPDRSA framework leverages two complementary publicly available datasets to capture diverse motor and speech characteristics associated with Parkinson disease. The **YouTubePD** dataset provides multimodal information comprising both video and speech, while the **Turning-in-Place Parkinson Disease** dataset focuses on clinically relevant turning movements for detailed gait analysis.
+
+### YouTubePD Dataset
+
+The **YouTubePD** dataset is a publicly available **multimodal Parkinson disease** dataset consisting of unconstrained YouTube videos of individuals with Parkinson disease and healthy controls. The videos are collected under real-world conditions, exhibiting variations in camera viewpoints, illumination, backgrounds, recording quality, and subject movements, making the dataset representative of practical clinical screening scenarios.
+
+Each recording contains synchronized **RGB video** and **speech audio**, enabling simultaneous analysis of motor and vocal impairments associated with Parkinson disease. The dataset captures diverse activities such as spontaneous speech, facial expressions, and upper-body movements, allowing comprehensive multimodal feature learning.
+
+#### Features Utilized
+
+##### Visual Features
+- Facial expressions and facial masking
+- Body posture and movement coordination
+- Temporal motion representations extracted from video sequences
+
+##### Audio Features
+- Mel-Frequency Cepstral Coefficients (MFCCs)
+- Temporal speech characteristics
+- Vocal articulation and phonation patterns
+- Speech rhythm and acoustic variations
+
+
+### Turning-in-Place Parkinson Disease Dataset
+
+The **Turning-in-Place Parkinson Disease** dataset is a publicly available clinical dataset specifically designed to analyze **turning movements**, which are among the earliest motor impairments observed in Parkinson disease. The dataset contains videos of participants performing standardized turning-in-place tasks under controlled experimental conditions.
+
+Unlike conventional gait datasets that primarily capture straight-line walking, this dataset emphasizes rotational movements that frequently reveal clinically significant symptoms such as **Freezing of Gait (FoG)**, impaired balance, reduced turning speed, postural instability, and motor coordination deficits.
+
+Since this dataset consists exclusively of video recordings, only visual information is utilized in the proposed framework.
+
+#### Features Utilized
+
+- Turning motion patterns
+- Body orientation changes
+- Rotational gait characteristics
+- Postural stability
+- Motor coordination during turning
+- Temporal movement dynamics
+- Indicators associated with Freezing of Gait (FoG)
+
+---
+
 ## Framework Overview
 
 The proposed VPDRSA framework consists of the following major components:
@@ -20,7 +66,22 @@ The proposed VPDRSA framework consists of the following major components:
 
 ### • Data Preprocessing
 
-* Video frame extraction and resizing.
+#### Video Preprocessing
+
+* Video decoding and frame extraction
+* Uniform temporal frame sampling (16 consecutive frames)
+* Frame resizing to **224 × 224** pixels
+* Pixel normalization
+* Data quality verification and removal of corrupted samples
+
+#### Audio Preprocessing
+
+* Audio extraction from video recordings
+* Noise reduction and resampling
+* Extraction of **40-dimensional Mel-Frequency Cepstral Coefficients (MFCCs)**
+* Temporal sequence standardization (300 frames)
+
+### • Dataset Prepraration
 * Temporal frame standardization.
 * Image normalization.
 * MFCC feature extraction from speech signals.
@@ -89,8 +150,7 @@ The repository includes the complete implementation required to reproduce the ex
 ├── Model evaluation scripts
 ├── Cross-validation
 ├── Statistical analysis
-├── Visualization utilities
-└── Example inference notebook
+└── Visualization utilities
 ```
 
 ---
