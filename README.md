@@ -8,8 +8,6 @@ The implementation is developed using Python and PyTorch, with Optuna employed f
 
 ---
 
----
-
 ## Dataset Description
 
 The proposed VPDRSA framework leverages two complementary publicly available datasets to capture diverse motor and speech characteristics associated with Parkinson disease. The **YouTubePD** dataset provides multimodal information comprising both video and speech, while the **Turning-in-Place Parkinson Disease** dataset focuses on clinically relevant turning movements for detailed gait analysis.
@@ -22,12 +20,12 @@ Each recording contains synchronized **RGB video** and **speech audio**, enablin
 
 #### Features Utilized
 
-##### Visual Features
+#### Visual Features
 - Facial expressions and facial masking
 - Body posture and movement coordination
 - Temporal motion representations extracted from video sequences
 
-##### Audio Features
+#### Audio Features
 - Mel-Frequency Cepstral Coefficients (MFCCs)
 - Temporal speech characteristics
 - Vocal articulation and phonation patterns
