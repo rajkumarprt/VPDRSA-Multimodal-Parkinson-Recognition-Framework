@@ -122,7 +122,7 @@ The repository has been developed to ensure reproducibility of the experimental 
 
 If you use this repository in your research, please cite the associated publication:
 
-> Rajavel R., Sankaranarayanan S., Dhanushree S., *"Vision-based Parkinson Disease Recognition and Severity Assessment using Multimodal Feature Fusion and Deep Learning."* (Add journal details after publication.)
+> Rajavel R., Sankaranarayanan S., Dhanushree D., *"Vision-based Parkinson Disease Recognition and Severity Assessment using Multimodal Feature Fusion and Deep Learning."* (Add journal details after publication.)
 
 ---
 
