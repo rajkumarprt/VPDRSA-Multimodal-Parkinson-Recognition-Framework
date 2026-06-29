@@ -4,7 +4,7 @@ The framework presents a multimodal deep learning architecture for automated Par
 The proposed approach combines advanced convolutional neural networks, temporal sequence modeling, multimodal feature fusion, hyperparameter optimization, and ensemble machine learning to achieve robust and reliable PD detection.\
 The implementation is developed using Python and PyTorch, with Optuna employed for hyperparameter optimization and XGBoost for final classification. The repository is intended to facilitate reproducible research and serves as a reference implementation for researchers working on computer vision, speech processing, multimodal learning, and intelligent healthcare systems.
 
-Framework Overview
+Framework Overview\
 The proposed VPDRSA framework consists of the following major components:
 •	Multimodal Data Acquisition 
 o	Video data from the YouTubePD dataset. 
