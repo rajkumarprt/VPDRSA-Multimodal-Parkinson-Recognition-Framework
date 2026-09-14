@@ -1,0 +1,49 @@
+{
+    "ablation": "A4",
+    "removed_component": "Attention Bi-LSTM",
+    "architecture": "EfficientNetV2 + MobileNetV3 + Bi-GRU + Adaptive Fusion + XGBoost",
+    "data_interface": "Video-only loader",
+    "feature_dimensions": {
+        "train": 256,
+        "validation": 256,
+        "test": 256
+    },
+    "train_samples": 248,
+    "validation_samples": 115,
+    "test_samples": 116,
+    "validation": {
+        "Architecture": "A4 - No Attention Bi-LSTM",
+        "Accuracy": 0.8782608695652174,
+        "Precision": 0.8688524590163934,
+        "Recall": 0.8983050847457628,
+        "F1-Score": 0.8833333333333333,
+        "FPR": 0.14285714285714285,
+        "AUROC": 0.9667070217917675,
+        "Loss": 0.27867712887467017
+    },
+    "test": {
+        "Architecture": "A4 - No Attention Bi-LSTM",
+        "Model": "EfficientNetV2 + MobileNetV3 + Bi-GRU + Adaptive Fusion + XGBoost",
+        "Accuracy": 0.8879310344827587,
+        "Precision": 0.8852459016393442,
+        "Recall": 0.9,
+        "F1-Score": 0.8925619834710744,
+        "FPR": 0.125,
+        "AUROC": 0.9678571428571429,
+        "Loss": 0.26720882820688296,
+        "Computation_Time_sec": 242.75749850800003
+    },
+    "computation": {
+        "feature_extraction_sec": 242.2687995360002,
+        "xgboost_training_sec": 0.48025427799984755,
+        "validation_inference_sec": 0.006786044999898877,
+        "test_inference_sec": 0.0016586490000918275,
+        "total_computation_sec": 242.75749850800003
+    },
+    "confusion_matrix": {
+        "TN": 49,
+        "FP": 7,
+        "FN": 6,
+        "TP": 54
+    }
+}

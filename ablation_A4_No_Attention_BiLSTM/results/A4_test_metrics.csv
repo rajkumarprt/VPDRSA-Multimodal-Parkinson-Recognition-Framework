@@ -1,0 +1,2 @@
+Architecture,Model,Accuracy,Precision,Recall,F1-Score,FPR,AUROC,Loss,Computation_Time_sec
+A4 - No Attention Bi-LSTM,EfficientNetV2 + MobileNetV3 + Bi-GRU + Adaptive Fusion + XGBoost,0.8879310344827587,0.8852459016393442,0.9,0.8925619834710744,0.125,0.9678571428571429,0.26720882820688296,242.75749850800003
