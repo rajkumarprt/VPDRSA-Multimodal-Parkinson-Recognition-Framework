@@ -1,0 +1,48 @@
+{
+    "ablation": "A1",
+    "removed_component": "EfficientNetV2",
+    "architecture": "MobileNetV3 + BiGRU + Attention Bi-LSTM + Adaptive Fusion + XGBoost",
+    "feature_dimensions": {
+        "train": 512,
+        "validation": 512,
+        "test": 512
+    },
+    "train_samples": 248,
+    "validation_samples": 115,
+    "test_samples": 116,
+    "validation": {
+        "Architecture": "A1 - No EfficientNetV2",
+        "Accuracy": 0.9304347826086956,
+        "Precision": 0.9322033898305084,
+        "Recall": 0.9322033898305084,
+        "F1-Score": 0.9322033898305084,
+        "FPR": 0.07142857142857142,
+        "AUROC": 0.9688256658595642,
+        "Loss": 0.28626551289763547
+    },
+    "test": {
+        "Architecture": "A1 - No EfficientNetV2",
+        "Model": "MobileNetV3 + BiGRU + Attention Bi-LSTM + Adaptive Fusion + XGBoost",
+        "Accuracy": 0.9310344827586207,
+        "Precision": 0.9482758620689655,
+        "Recall": 0.9166666666666666,
+        "F1-Score": 0.9322033898305084,
+        "FPR": 0.05357142857142857,
+        "AUROC": 0.9866071428571429,
+        "Loss": 0.1781134019876672,
+        "Computation_Time_sec": 37.51502821000031
+    },
+    "computation": {
+        "feature_extraction_sec": 37.21032122999986,
+        "xgboost_training_sec": 0.29480303899981664,
+        "validation_inference_sec": 0.007188467000560195,
+        "test_inference_sec": 0.002715474000069662,
+        "total_computation_sec": 37.51502821000031
+    },
+    "confusion_matrix": {
+        "TN": 53,
+        "FP": 3,
+        "FN": 5,
+        "TP": 55
+    }
+}
