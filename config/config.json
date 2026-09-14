@@ -1,0 +1,17 @@
+{
+    "seed": 42,
+    "device": "cpu",
+    "batch_size": 2,
+    "num_epochs": 10,
+    "num_frames": 32,
+    "image_size": 224,
+    "audio_mels": 128,
+    "audio_time": 313,
+    "model": "EfficientNetV2-S + MobileNetV3-Large + Attention-BiLSTM + Audio CNN + Adaptive Fusion + Softmax",
+    "optimizer": "AdamW",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "train_csv": "/content/drive/MyDrive/VIT_DATASETS/splits/train.csv",
+    "val_csv": "/content/drive/MyDrive/VIT_DATASETS/splits/val.csv",
+    "test_csv": "/content/drive/MyDrive/VIT_DATASETS/splits/test.csv"
+}

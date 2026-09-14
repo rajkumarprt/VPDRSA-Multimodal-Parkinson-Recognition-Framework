@@ -1,0 +1,10 @@
+{
+    "n_trials": 8,
+    "seed": 42,
+    "xgb_eval_metric": "logloss",
+    "use_xgb_gpu": true,
+    "best_checkpoint": "/content/drive/MyDrive/Module 1/Attention_BiLSTM_BiGRU/checkpoints/best.pt",
+    "feature_dir": "/content/drive/MyDrive/Module 1/Attention_BiLSTM_BiGRU/fused_features",
+    "architecture": "EfficientNetV2 + MobileNetV3 + Bi-GRU + Attention Bi-LSTM + Adaptive Fusion + XGBoost",
+    "feature_definition": "Input to final neural classifier; softmax probabilities are NOT used as XGBoost features."
+}

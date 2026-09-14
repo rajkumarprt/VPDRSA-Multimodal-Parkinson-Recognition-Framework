@@ -1,0 +1,8 @@
+Stage,Time_seconds
+Optuna optimization,15.16419407400008
+Unoptimized XGBoost training,0.11562648400013131
+Optimized XGBoost training,0.10231268600000476
+Unoptimized validation inference,0.0062195519999477256
+Optimized validation inference,0.005244226999820967
+Unoptimized test inference,0.0021556659999077965
+Optimized test inference,0.0021306170001480496

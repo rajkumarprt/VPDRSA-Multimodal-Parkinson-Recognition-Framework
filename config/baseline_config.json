@@ -1,0 +1,21 @@
+{
+    "seed": 42,
+    "num_frames": 32,
+    "image_size": 224,
+    "batch_size": 2,
+    "num_workers": 2,
+    "num_classes": 2,
+    "epochs": 10,
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "efficientnet": "tf_efficientnetv2_s",
+    "mobilenet": "mobilenetv3_large_100",
+    "attention_bilstm_hidden": 256,
+    "visual_fusion_dim": 512,
+    "audio_embedding_dim": 256,
+    "multimodal_fusion_dim": 512,
+    "label_map": {
+        "Negative": 0,
+        "Positive": 1
+    }
+}

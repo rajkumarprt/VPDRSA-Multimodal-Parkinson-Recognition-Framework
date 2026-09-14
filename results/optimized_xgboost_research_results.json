@@ -1,0 +1,101 @@
+{
+    "architecture": "EfficientNetV2 + MobileNetV3 + Bi-GRU + Attention Bi-LSTM + Adaptive Fusion + XGBoost",
+    "feature_dimension": 256,
+    "optimization": {
+        "method": "Optuna",
+        "trials": 20,
+        "cv_method": "Subject-grouped GroupKFold",
+        "folds": 4,
+        "objective": "Mean grouped-CV F1",
+        "optimization_time_sec": 11.543396472930908
+    },
+    "best_params": {
+        "n_estimators": 231,
+        "max_depth": 3,
+        "learning_rate": 0.023507216593069237,
+        "min_child_weight": 8,
+        "subsample": 0.8270226052205061,
+        "colsample_bytree": 0.7691768330659452,
+        "gamma": 0.9123114856316257,
+        "reg_alpha": 0.3332889405264865,
+        "reg_lambda": 2.918162322099346
+    },
+    "grouped_cv": {
+        "Accuracy": 0.9637096774193549,
+        "Precision": 1.0,
+        "Recall": 0.9296875,
+        "F1-Score": 0.9635627530364372,
+        "ROC-AUC": 0.9990234375,
+        "MCC": 0.929959989136817
+    },
+    "validation": {
+        "unoptimized": {
+            "Accuracy": 0.9217391304347826,
+            "Precision": 0.9310344827586207,
+            "Recall": 0.9152542372881356,
+            "F1-Score": 0.9230769230769231,
+            "ROC-AUC": 0.9809322033898306,
+            "MCC": 0.8435703865719618,
+            "TPR": 0.9152542372881356,
+            "FPR": 0.07142857142857142,
+            "Specificity": 0.9285714285714286,
+            "TN": 52,
+            "FP": 4,
+            "FN": 5,
+            "TP": 54
+        },
+        "optimized": {
+            "Accuracy": 0.9217391304347826,
+            "Precision": 0.9310344827586207,
+            "Recall": 0.9152542372881356,
+            "F1-Score": 0.9230769230769231,
+            "ROC-AUC": 0.9821428571428572,
+            "MCC": 0.8435703865719618,
+            "TPR": 0.9152542372881356,
+            "FPR": 0.07142857142857142,
+            "Specificity": 0.9285714285714286,
+            "TN": 52,
+            "FP": 4,
+            "FN": 5,
+            "TP": 54
+        }
+    },
+    "test": {
+        "unoptimized": {
+            "Accuracy": 0.9568965517241379,
+            "Precision": 0.9824561403508771,
+            "Recall": 0.9333333333333333,
+            "F1-Score": 0.9572649572649573,
+            "ROC-AUC": 0.9876488095238096,
+            "MCC": 0.915067769224333,
+            "TPR": 0.9333333333333333,
+            "FPR": 0.017857142857142856,
+            "Specificity": 0.9821428571428571,
+            "TN": 55,
+            "FP": 1,
+            "FN": 4,
+            "TP": 56
+        },
+        "optimized": {
+            "Accuracy": 0.9568965517241379,
+            "Precision": 0.9824561403508771,
+            "Recall": 0.9333333333333333,
+            "F1-Score": 0.9572649572649573,
+            "ROC-AUC": 0.9943452380952381,
+            "MCC": 0.915067769224333,
+            "TPR": 0.9333333333333333,
+            "FPR": 0.017857142857142856,
+            "Specificity": 0.9821428571428571,
+            "TN": 55,
+            "FP": 1,
+            "FN": 4,
+            "TP": 56
+        }
+    },
+    "timing": {
+        "baseline_training_sec": 0.08495593070983887,
+        "optimized_training_sec": 0.15421652793884277,
+        "optimized_validation_inference_sec": 0.006850719451904297,
+        "optimized_test_inference_sec": 0.0023288726806640625
+    }
+}
