@@ -692,7 +692,7 @@ The framework evaluates classification performance using multiple metrics.
                 Metrics
 
 ---
-
+```
 # Technologies
 
 * **Python**
