@@ -1,738 +1,770 @@
-A multimodal deep learning framework for Parkinson’s disease detection from video and audio information, combining complementary spatial, temporal, and acoustic representations with adaptive feature fusion and an XGBoost-based classifier.
+# Multimodal Deep Learning Framework for Parkinson’s Disease Detection
 
-Overview
+A multimodal deep learning framework for automated Parkinson’s disease detection using video-based visual representations, temporal sequence modeling, adaptive feature fusion, and machine learning-based classification.
 
-This project develops a multimodal Parkinson’s disease detection system that combines visual and temporal information extracted from video data with acoustic information from speech-oriented videos.
+---
 
-The proposed architecture integrates:
+## Overview
 
-EfficientNetV2 for visual feature extraction
+Parkinson’s disease is a progressive neurological disorder that can produce observable changes in movement and other behavioral characteristics. This project investigates a deep learning framework for automatically identifying Parkinson’s disease-related patterns from video data.
 
-MobileNetV3 for complementary visual representation learning
+The proposed framework combines multiple complementary neural network components:
 
-Bidirectional GRU (Bi-GRU) for temporal sequence modeling
+* **EfficientNetV2** for visual feature extraction
+* **MobileNetV3** for complementary visual representation learning
+* **Bidirectional GRU (Bi-GRU)** for temporal sequence modeling
+* **Attention-based Bidirectional LSTM (Attention Bi-LSTM)** for learning important temporal patterns
+* **Adaptive Fusion** for combining learned representations
+* **Softmax** as the baseline classifier
+* **XGBoost** as an alternative nonlinear classifier
+* **Optuna with TPE** for XGBoost hyperparameter optimization
+* **SHAP / TreeSHAP** for interpreting the fused feature representation
 
-Attention-based Bidirectional LSTM (Attention Bi-LSTM) for learning important temporal patterns
+The framework is designed to investigate how combining spatial, temporal, and multimodal representations can support Parkinson’s disease classification.
 
-Adaptive Fusion for combining multimodal deep representations
+---
+## Dataset Description
 
-Softmax as the baseline classifier
+The proposed Parkinson’s disease detection framework uses two complementary video sources: the **YouTube dataset** and the **Turning dataset**. The datasets capture different aspects of human behavior relevant to Parkinson’s disease, allowing the study to investigate both speech-related and movement-related characteristics.
 
-XGBoost as the optimized nonlinear classifier
+### 1. YouTube Dataset
 
-Optuna with Tree-structured Parzen Estimator (TPE) for XGBoost hyperparameter optimization
+The **YouTube dataset** consists of publicly available videos containing individuals engaged primarily in **speech and conversational activities**. The dataset is organized into two classes:
 
-The framework is evaluated using Accuracy, Precision, Recall, F1-score, False Positive Rate (FPR), AUROC, Loss, and computation time.
+* **Positive** — videos associated with individuals with Parkinson’s disease.
+* **Negative** — videos associated with individuals without Parkinson’s disease.
 
-Research Objective
+The videos provide visual and audio information. The visual component contains facial, body, and behavioral cues, while the audio component provides speech-related information that can potentially contain characteristics associated with Parkinson’s disease.
 
-The primary objective is to investigate whether combining complementary visual, temporal, and audio representations can improve automated Parkinson’s disease detection.
+The YouTube dataset was used as the primary source for **model development and supervised classification**. It was divided into training, validation, and testing subsets. The training subset was used to learn the model parameters, the validation subset was used for model selection and tuning, and the test subset was used for final performance evaluation.
 
-The system is designed around the following principle:
+### 2. Turning Dataset
 
-Deep neural networks learn meaningful multimodal representations, adaptive fusion combines these representations, and XGBoost learns nonlinear decision boundaries from the resulting fused feature vector.
+The **Turning dataset** consists of videos capturing subjects performing **turning movements**. These videos provide movement-related information that is different from the speech-oriented behavioral information available in the YouTube dataset.
 
-EfficientNetV2 and MobileNetV3 provide complementary visual representations, while Bi-GRU and Attention Bi-LSTM model temporal dependencies. Adaptive Fusion integrates the learned representations before classification.
+Turning is an important motor activity for studying Parkinsonian movement patterns because changes in movement characteristics can be associated with Parkinson’s disease.
 
-Dataset
+A key limitation of the Turning dataset is that it contains **Parkinson’s-positive turning videos but does not contain corresponding negative turning samples**. Consequently, it could not be directly treated as a conventional balanced positive/negative classification dataset.
 
-The project uses two datasets:
+The Turning dataset was therefore used to provide **movement-specific information and complementary behavioral characteristics**, while the YouTube dataset provided the primary labeled positive/negative data for supervised model development.
 
-1. YouTube Dataset
+### 3. Data Augmentation
 
-The YouTube dataset contains Parkinson’s disease-related videos divided into:
+Data augmentation was performed because the **Turning dataset did not contain negative turning samples** and the available original movement samples were limited.
 
-Youtube dataset/
-├── Negative/
-└── Positive/
+Additional samples were generated by applying transformations to the available original video samples. The purpose of this process was to increase the diversity and availability of movement samples for the experimental pipeline.
 
-The dataset contains both positive and negative samples and provides video and audio information.
+The generated samples are **augmented versions of the original Turning data rather than independently collected subjects**. Therefore, augmentation was used to increase sample diversity and representation of movement patterns; it does not constitute the creation of new clinically independent negative subjects.
 
-2. Turning Dataset
+Original and augmented samples were tracked separately during dataset preparation to maintain reproducibility and allow the contribution of augmented data to be identified.
 
-The Turning dataset contains Parkinson’s-related turning movement videos.
+### 4. Role of Each Dataset
 
-Turning dataset/
-└── PDFE*.mp4
+The two datasets were assigned different roles in the research pipeline:
 
-The turning videos provide movement-related visual information and are used as part of the broader multimodal Parkinson’s disease detection research.
+| Dataset                       | Type of Information                               | Class Information                    | Role                                                                               |
+| ----------------------------- | ------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------- |
+| **YouTube Dataset**           | Speech, facial, visual and behavioral information | Positive + Negative                  | Primary dataset for supervised model development, training, validation and testing |
+| **Turning Dataset**           | Turning and movement-related information          | Positive turning samples             | Complementary movement-based data                                                  |
+| **Augmented Turning Samples** | Transformed variations of original turning videos | Retain source-sample characteristics | Increase movement-sample diversity and data availability                           |
 
-Dataset Location
+### 5. Overall Dataset Pipeline
 
-The raw dataset was organized under:
+```text
+                         RAW DATA
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+              ▼                           ▼
+       YouTube Dataset              Turning Dataset
+              │                           │
+       ┌──────┴──────┐             Parkinson's-
+       │             │             positive turning
+    Positive      Negative             videos
+       │             │                    │
+       │             │                    ▼
+       │             │             Data Augmentation
+       │             │                    │
+       │             │                    ▼
+       │             │             Augmented Turning
+       │             │                 Samples
+       └──────┬──────┘                    │
+              │                           │
+              └─────────────┬─────────────┘
+                            │
+                            ▼
+                    Data Preprocessing
+                            │
+                            ▼
+                    Feature Extraction
+                            │
+                            ▼
+                    Multimodal Learning
+                            │
+                            ▼
+                     Feature Fusion
+                            │
+                            ▼
+                    Final Classification
+```
 
-/content/drive/MyDrive/ParkinsonDataset
+### 6. Dataset Organization
 
-with the structure:
+The raw dataset is organized into separate directories for the two sources:
 
+```text
 ParkinsonDataset/
+│
 ├── Turning dataset/
-│   ├── PDFE*.mp4
-│   └── ...
+│   └── *.mp4
 │
 └── Youtube dataset/
-    ├── Negative/
-    │   ├── *.mp4
-    │   └── ...
+    ├── Positive/
+    │   └── *.mp4
     │
-    └── Positive/
-        ├── *.mp4
-        └── ...
+    └── Negative/
+        └── *.mp4
+```
 
-Data Processing
+The raw videos are subsequently processed to generate the frame sequences and other representations required by the deep learning pipeline. Augmented samples are generated during the data-preparation stage and are maintained separately from the original samples for reproducibility.
 
-The videos are processed into frame sequences for visual feature extraction.
+### 7. Dataset Rationale
 
-The preprocessing pipeline includes:
+Using both datasets provides complementary behavioral information. The **YouTube dataset contributes labeled positive and negative examples with speech and visual information**, making it suitable for supervised classification. The **Turning dataset contributes movement-specific information** that captures a different behavioral aspect of Parkinson’s disease.
 
-Loading video files.
+The combination therefore supports the development of a multimodal framework capable of learning from different observable characteristics associated with Parkinson’s disease, while explicitly accounting for the class-availability limitation of the Turning dataset.
 
-Extracting video frames.
 
-Resizing frames to the required input resolution.
+## Research Objective
 
-Normalizing visual inputs.
+The primary objective is to develop a multimodal learning pipeline capable of extracting meaningful representations from Parkinson’s disease-related video data and using these representations for binary classification.
 
-Extracting audio from videos where available.
+The framework follows the principle:
 
-Preparing acoustic representations for the audio branch.
-
-Constructing temporal sequences for recurrent networks.
-
-Passing the resulting representations through the multimodal architecture.
-
-The model therefore operates on both spatial and temporal information rather than treating a video as a single static image.
-
-Proposed Architecture
-
-                    VIDEO INPUT
-                         │
-              ┌──────────┴──────────┐
-              │                     │
-              ▼                     ▼
-        EfficientNetV2         MobileNetV3
-              │                     │
-              └──────────┬──────────┘
-                         │
-                  Visual Features
-                         │
-                         ▼
-                     Bi-GRU
-                         │
-                         ▼
-                Attention Bi-LSTM
-                         │
-                         ▼
-                  Temporal Features
-
-                    AUDIO INPUT
-                         │
-                         ▼
-                 Audio Features
-                         │
-                         └──────────────┐
-                                        │
-                                        ▼
-                              Adaptive Fusion
-                                        │
-                                        ▼
-                            Fused Feature Vector
-                                        │
-                         ┌──────────────┴──────────────┐
-                         │                             │
-                         ▼                             ▼
-                     Softmax                      XGBoost
-                   Baseline Model              Optimized Model
-                         │                             │
-                         └──────────────┬──────────────┘
-                                        ▼
-                           Parkinson’s Classification
-
-EfficientNetV2
-
-EfficientNetV2 is used as a major visual feature extractor.
-
-Its role is to learn discriminative spatial representations from video frames while maintaining an efficient architecture.
-
-The extracted visual representations capture appearance and movement-related characteristics that can contribute to Parkinson’s disease classification.
-
-MobileNetV3
-
-MobileNetV3 provides a complementary visual representation.
-
-Using a second visual backbone allows the system to learn different characteristics from the same video input instead of depending on a single feature extractor.
-
-The EfficientNetV2 and MobileNetV3 representations are subsequently incorporated into the temporal and fusion stages of the framework.
-
-Bidirectional GRU
-
-The Bidirectional GRU (Bi-GRU) is used to model temporal dependencies across the extracted video representations.
-
-Because the recurrent network operates bidirectionally, information from both forward and backward temporal directions can contribute to the learned representation.
-
-This is useful for video-based analysis where clinically relevant movement patterns can occur across multiple frames.
-
-Attention-based Bidirectional LSTM
-
-The Attention Bi-LSTM extends temporal modeling by allowing the architecture to assign greater importance to informative temporal representations.
-
-Instead of treating every temporal representation equally, the attention mechanism helps emphasize relevant portions of the sequence.
-
-The resulting representation is used as part of the multimodal feature representation before adaptive fusion.
-
-Adaptive Fusion
-
-The multimodal representations are combined using an Adaptive Fusion mechanism.
-
-The purpose of adaptive fusion is to learn how different representations should contribute to the final fused representation.
-
-Conceptually:
-
-Visual Features
-      +
-Temporal Features
-      +
-Audio Features
-      │
-      ▼
-Adaptive Fusion
-      │
-      ▼
+```text
+Raw Video
+    ↓
+Visual Feature Extraction
+    ↓
+Temporal Representation Learning
+    ↓
+Adaptive Feature Fusion
+    ↓
 Fused Deep Representation
-
-The fused representation provides the final classifier with a compact representation containing information learned from multiple branches.
-
+    ↓
 Classification
+    ↓
+Parkinson's / Non-Parkinson's
+```
 
-Two classification configurations are evaluated.
+The architecture also investigates whether replacing a conventional Softmax classifier with XGBoost can provide a more flexible nonlinear decision boundary over the learned fused representation.
 
-Softmax Baseline
+---
 
-The baseline system uses a Softmax classification layer after adaptive fusion.
+# Architecture
 
-Deep Features
-     ↓
+## Overall Architecture
+
+```text
+                         ┌─────────────────────┐
+                         │     Input Video     │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │  Frame Extraction   │
+                         └──────────┬──────────┘
+                                    │
+                    ┌───────────────┴───────────────┐
+                    │                               │
+                    ▼                               ▼
+           ┌─────────────────┐             ┌─────────────────┐
+           │  EfficientNetV2 │             │   MobileNetV3   │
+           └────────┬────────┘             └────────┬────────┘
+                    │                               │
+                    └───────────────┬───────────────┘
+                                    │
+                                    ▼
+                         Visual Representations
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ Temporal Modeling   │
+                         └──────────┬──────────┘
+                                    │
+                       ┌────────────┴────────────┐
+                       │                         │
+                       ▼                         ▼
+                ┌─────────────┐          ┌─────────────────┐
+                │   Bi-GRU    │          │ Attention       │
+                │             │          │ Bi-LSTM         │
+                └──────┬──────┘          └────────┬────────┘
+                       │                           │
+                       └────────────┬──────────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │  Adaptive Fusion    │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         Fused Feature Vector
+                                    │
+                       ┌────────────┴────────────┐
+                       │                         │
+                       ▼                         ▼
+                  ┌──────────┐             ┌──────────┐
+                  │ Softmax  │             │ XGBoost  │
+                  │ Baseline │             │ Optimized│
+                  └────┬─────┘             └────┬─────┘
+                       │                         │
+                       └────────────┬────────────┘
+                                    │
+                                    ▼
+                         Parkinson's Classification
+```
+
+---
+
+# Dataset
+
+The project uses two Parkinson’s disease-related video datasets.
+
+## YouTube Dataset
+
+The YouTube dataset contains videos organized into positive and negative Parkinson’s disease classes.
+
+```text
+Youtube dataset/
+│
+├── Positive/
+│   ├── *.mp4
+│   └── ...
+│
+└── Negative/
+    ├── *.mp4
+    └── ...
+```
+
+The positive and negative samples enable supervised binary classification.
+
+The videos are processed to obtain frame sequences and, where available, audio information for multimodal representation learning.
+
+---
+
+## Turning Dataset
+
+The Turning dataset consists of Parkinson’s-related turning movement videos.
+
+```text
+Turning dataset/
+│
+├── PDFE*.mp4
+├── PDFE*.mp4
+└── ...
+```
+
+The turning videos provide movement-related visual information relevant to Parkinson’s disease analysis.
+
+---
+
+## Dataset Organization
+
+The datasets are organized under:
+
+```text
+/content/drive/MyDrive/ParkinsonDataset/
+│
+├── Turning dataset/
+│   └── PDFE*.mp4
+│
+└── Youtube dataset/
+    ├── Positive/
+    │   └── *.mp4
+    │
+    └── Negative/
+        └── *.mp4
+```
+
+---
+
+# Data Preprocessing
+
+The preprocessing pipeline converts raw videos into model-compatible representations.
+
+```text
+Raw Video
+    │
+    ▼
+Video Loading
+    │
+    ▼
+Frame Extraction
+    │
+    ▼
+Frame Resizing
+    │
+    ▼
+Normalization
+    │
+    ▼
+Frame Sequence
+    │
+    ▼
+Visual Feature Extraction
+```
+
+The preprocessing stage is responsible for preparing the video sequences before they are passed through the visual and temporal components.
+
+Audio information available from the videos can also be processed as part of the multimodal representation pipeline.
+
+---
+
+# Model Components
+
+## EfficientNetV2
+
+EfficientNetV2 acts as a primary visual feature extractor.
+
+```text
+Video Frames
+     │
+     ▼
+EfficientNetV2
+     │
+     ▼
+Deep Visual Representation
+```
+
+It extracts high-level spatial representations from individual video frames.
+
+These representations provide information that can subsequently be used for temporal sequence modeling and multimodal fusion.
+
+---
+
+## MobileNetV3
+
+MobileNetV3 provides an additional visual representation.
+
+```text
+Video Frames
+     │
+     ▼
+MobileNetV3
+     │
+     ▼
+Complementary Visual Representation
+```
+
+The use of EfficientNetV2 together with MobileNetV3 allows the architecture to obtain complementary representations from the visual input.
+
+---
+
+## Bidirectional GRU
+
+The **Bidirectional GRU (Bi-GRU)** is responsible for temporal sequence modeling.
+
+A video consists of a sequence of frames, and the relationship between frames can contain important information.
+
+```text
+Frame 1 → Frame 2 → Frame 3 → ... → Frame T
+     │
+     ▼
+   Bi-GRU
+     │
+     ▼
+Temporal Representation
+```
+
+The bidirectional structure allows the recurrent model to learn temporal information from both directions of the sequence.
+
+---
+
+## Attention Bi-LSTM
+
+The **Attention Bi-LSTM** is used to learn important temporal patterns.
+
+```text
+Temporal Sequence
+       │
+       ▼
+Bidirectional LSTM
+       │
+       ▼
+Attention Mechanism
+       │
+       ▼
+Important Temporal Representation
+```
+
+The attention mechanism enables the network to assign greater importance to more informative temporal representations.
+
+This helps the model avoid treating every temporal feature as equally important.
+
+---
+
+# Adaptive Fusion
+
+The framework uses adaptive fusion to combine representations learned from different components.
+
+```text
+EfficientNetV2 Features ─────┐
+                             │
+MobileNetV3 Features ────────┤
+                             │
+Bi-GRU Features ─────────────┤
+                             │
+Attention Bi-LSTM Features ──┤
+                             │
+Additional Multimodal Data ──┘
+                             │
+                             ▼
+                     Adaptive Fusion
+                             │
+                             ▼
+                   Fused Representation
+```
+
+The purpose of adaptive fusion is to learn how the different representations should contribute to the final feature representation.
+
+The resulting fused representation is passed to the classification stage.
+
+---
+
+# Classification
+
+Two classification approaches are investigated.
+
+## Softmax Baseline
+
+The first configuration uses a conventional Softmax classifier.
+
+```text
+EfficientNetV2
+      +
+MobileNetV3
+      +
+Bi-GRU
+      +
+Attention Bi-LSTM
+      +
 Adaptive Fusion
-     ↓
-Softmax
-     ↓
-Positive / Negative
+      │
+      ▼
+   Softmax
+      │
+      ▼
+PD / Non-PD
+```
 
-This configuration provides the baseline against which the optimized classifier is evaluated.
+This provides the baseline classification configuration.
 
-XGBoost Classifier
+---
 
-The optimized configuration replaces the Softmax classifier with XGBoost.
+## XGBoost Classifier
 
-Deep Features
-     ↓
+The second configuration uses XGBoost as the final classifier.
+
+```text
+EfficientNetV2
+      +
+MobileNetV3
+      +
+Bi-GRU
+      +
+Attention Bi-LSTM
+      +
 Adaptive Fusion
-     ↓
-Fused Feature Vector
-     ↓
-XGBoost
-     ↓
-Positive / Negative
+      │
+      ▼
+Fused Deep Features
+      │
+      ▼
+    XGBoost
+      │
+      ▼
+PD / Non-PD
+```
 
-XGBoost is used because the final fused representation is a structured feature vector, allowing a tree-based model to learn nonlinear decision boundaries.
+XGBoost operates on the learned fused feature representation rather than directly processing the original video frames.
 
-Optuna Hyperparameter Optimization
+This allows the classifier to learn nonlinear decision boundaries in the learned feature space.
+
+---
+
+# Optuna Hyperparameter Optimization
 
 Optuna is used to optimize the XGBoost classifier.
 
-The optimization uses the Tree-structured Parzen Estimator (TPE) approach.
+The optimization uses the **Tree-structured Parzen Estimator (TPE)** approach.
 
-The optimization process searches for suitable XGBoost hyperparameters while incorporating overfitting control.
+```text
+                  XGBoost
+                     │
+                     ▼
+             Hyperparameter Search
+                     │
+                     ▼
+                   Optuna
+                     │
+                     ▼
+                    TPE
+                     │
+          ┌──────────┴──────────┐
+          │                     │
+          ▼                     ▼
+ Candidate Parameters     Validation Evaluation
+          │                     │
+          └──────────┬──────────┘
+                     ▼
+              Best Parameters
+                     │
+                     ▼
+              Optimized XGBoost
+```
 
-The optimized classifier is then evaluated on the validation and test sets.
+The optimization process searches for suitable XGBoost hyperparameters while considering model performance and overfitting control.
 
-Experimental Configurations
+---
 
-Baseline Configuration
+# Experimental Configurations
 
+## Baseline Configuration
+
+```text
 EfficientNetV2
-        +
+      +
 MobileNetV3
-        +
+      +
 Bi-GRU
-        +
+      +
 Attention Bi-LSTM
-        +
+      +
 Adaptive Fusion
-        +
+      +
 Softmax
+```
 
-Optimized Configuration
+## Optimized Configuration
 
+```text
 EfficientNetV2
-        +
+      +
 MobileNetV3
-        +
+      +
 Bi-GRU
-        +
+      +
 Attention Bi-LSTM
-        +
+      +
 Adaptive Fusion
-        +
+      +
 XGBoost
+```
 
-Evaluation Metrics
+---
 
-The following metrics are reported for model evaluation.
+# Ablation Study
 
-Metric
+An ablation study is used to evaluate the contribution of individual architectural components.
 
-Description
+The study considers configurations where individual components are removed from the full architecture.
 
-Accuracy
-
-Overall proportion of correctly classified samples
-
-Precision
-
-Proportion of predicted positive samples that are actually positive
-
-Recall
-
-Proportion of actual positive samples correctly identified
-
-F1-score
-
-Harmonic mean of Precision and Recall
-
-FPR
-
-Proportion of negative samples incorrectly classified as positive
-
-AUROC
-
-Area under the Receiver Operating Characteristic curve
-
-Loss
-
-Model classification loss
-
-Time
-
-Computation time for the corresponding evaluation stage
-
-Experimental Results
-
-Baseline — Softmax
-
-Split
-
-Loss
-
-Accuracy
-
-Precision
-
-Recall
-
-F1-score
-
-FPR
-
-AUROC
-
-Time (s)
-
-Train
-
-0.1237
-
-0.9718
-
-0.9849
-
-0.9609
-
-0.9723
-
-0.0167
-
-0.9923
-
-77.01
-
-Validation
-
-0.3634
-
-0.9217
-
-0.9310
-
-0.9153
-
-0.9231
-
-0.0714
-
-0.9885
-
-11.69
-
-Test
-
-0.2098
-
-0.9569
-
-0.9825
-
-0.9330
-
-0.9573
-
-0.0179
-
-0.9952
-
-344.94
-
-Optimized — XGBoost
-
-Split
-
-Loss
-
-Accuracy
-
-Precision
-
-Recall
-
-F1-score
-
-FPR
-
-AUROC
-
-Time (s)
-
-Train
-
-0.1237
-
-0.9718
-
-0.9849
-
-0.9609
-
-0.9723
-
-0.0167
-
-0.9923
-
-97.10
-
-Validation
-
-0.3634
-
-0.9217
-
-0.9310
-
-0.9153
-
-0.9231
-
-0.0714
-
-0.9660
-
-9.67
-
-Test
-
-0.2098
-
-0.9569
-
-0.9825
-
-0.9330
-
-0.9573
-
-0.0179
-
-0.9876
-
-15.16
-
-Ablation Study
-
-An ablation study was performed to investigate the contribution of the major components of the proposed architecture.
-
-The full model is compared against configurations where individual components are removed.
-
-Ablation Configurations
-
-Configuration
-
-Architecture
-
-No EfficientNetV2
-
-MobileNetV3 + Bi-GRU + Attention Bi-LSTM + Adaptive Fusion + XGBoost
-
-No MobileNetV3
-
-EfficientNetV2 + Bi-GRU + Attention Bi-LSTM + Adaptive Fusion + XGBoost
-
-No Bi-GRU
-
-EfficientNetV2 + MobileNetV3 + Attention Bi-LSTM + Adaptive Fusion + XGBoost
-
-No Attention Bi-LSTM
-
-EfficientNetV2 + MobileNetV3 + Bi-GRU + Adaptive Fusion + XGBoost
-
-No XGBoost
-
-EfficientNetV2 + MobileNetV3 + Bi-GRU + Attention Bi-LSTM + Adaptive Fusion + Softmax
-
-Full Model
-
-EfficientNetV2 + MobileNetV3 + Bi-GRU + Attention Bi-LSTM + Adaptive Fusion + XGBoost
-
-Ablation Results
-
-Configuration
-
-Accuracy
-
-Precision
-
-Recall
-
-F1-score
-
-FPR
-
-AUROC
-
-Loss
-
-Time (s)
-
-No EfficientNetV2
-
-0.9310
-
-0.9483
-
-0.9167
-
-0.9322
-
-0.0536
-
-0.9866
-
-0.1780
-
-37.52
-
-No MobileNetV3
-
-0.9224
-
-0.9048
-
-0.9500
-
-0.9268
-
-0.1071
-
-0.9656
-
-0.2969
-
-50.25
-
-No Bi-GRU
-
-0.9310
-
-0.9330
-
-0.9330
-
-0.9330
-
-0.0714
-
-0.9896
-
-0.1645
-
-107.38
-
-No Attention Bi-LSTM
-
-0.8879
-
-0.8852
-
-0.9000
-
-0.8926
-
-0.1250
-
-0.9679
-
-0.2672
-
-242.76
-
-No XGBoost
-
-0.9224
-
-0.9180
-
-0.9333
-
-0.9256
-
-0.0893
-
-0.9845
-
-0.2287
-
-140.38
-
-Full Model
-
-0.9310
-
-0.9483
-
-0.9167
-
-0.9322
-
-0.0536
-
-0.9911
-
-0.2187
-
-105.73
-
-Statistical Analysis
-
-Multiple experimental runs were considered for comparing optimized and unoptimized configurations.
-
-The statistical analysis focuses on:
-
-Accuracy
-
-AUROC
-
-Mean performance
-
-Standard deviation
-
-Statistical significance testing
-
-A Student's t-test is used to compare the optimized XGBoost configuration against the unoptimized Softmax configuration.
-
-The reported analysis concluded that the difference was not statistically significant, because the best performance was already achieved by the unoptimized configuration.
-
-Therefore, the optimization did not demonstrate a statistically significant improvement over the baseline in the reported experiments.
-
-Explainability — SHAP
-
-SHAP (SHapley Additive exPlanations) was considered for interpreting the XGBoost classifier.
-
-The XGBoost classifier operates on the final fused representation rather than directly on raw video frames or audio spectrograms.
-
-The fused representation contains 256 features generated by the preceding neural-network components.
-
-Therefore, TreeSHAP can provide feature importance for the fused feature vector:
-
-Video Frames ──► Neural Feature Extractors ──┐
-                                             │
-Audio ─────────► Neural Feature Extractors ──┤
-                                             ▼
-                                      Adaptive Fusion
-                                             │
-                                             ▼
-                                   256-D Fused Features
-                                             │
-                                             ▼
-                                          XGBoost
-                                             │
-                                             ▼
-                                          SHAP
-
-The SHAP explanation therefore describes the contribution of the fused features to the XGBoost prediction.
-
-Directly mapping these SHAP values back to individual pixels, frequency bands, or specific time points is not straightforward because the fused features have passed through multiple nonlinear transformations, including EfficientNetV2, MobileNetV3, Bi-LSTM, Bi-GRU, and Adaptive Fusion.
-
-End-to-End Pipeline
-
-                    Raw Parkinson's Videos
+```text
+                         Full Model
                              │
-                             ▼
-                      Video Preprocessing
-                             │
-                  ┌──────────┴──────────┐
-                  │                     │
-                  ▼                     ▼
-             Video Frames             Audio
-                  │                     │
-                  ▼                     ▼
-            EfficientNetV2        Audio Features
-                  │
-                  ├──────────────┐
-                  │              │
-                  ▼              ▼
-            MobileNetV3       Temporal Modeling
-                                  │
-                           ┌──────┴──────┐
-                           ▼             ▼
-                        Bi-GRU      Attention Bi-LSTM
-                           │             │
-                           └──────┬──────┘
-                                  │
-                                  ▼
+        ┌────────────────────┼────────────────────┐
+        │                    │                    │
+        ▼                    ▼                    ▼
+ Remove                 Remove               Remove
+EfficientNetV2          MobileNetV3            Bi-GRU
+        │                    │                    │
+        ▼                    ▼                    ▼
+ Performance            Performance          Performance
+   Change                  Change                Change
+
+        ┌────────────────────┼────────────────────┐
+        │                    │
+        ▼                    ▼
+ Remove Attention        Remove XGBoost
+ Bi-LSTM                 / Use Softmax
+```
+
+The major ablation configurations are:
+
+```text
+A1: No EfficientNetV2
+A2: No MobileNetV3
+A3: No Bi-GRU
+A4: No Attention Bi-LSTM
+A5: No XGBoost — Softmax classifier
+A6: Full Model — XGBoost classifier
+```
+
+The ablation experiments are used to understand the contribution of the individual components to the overall architecture.
+
+---
+
+# Statistical Analysis
+
+Statistical analysis is performed to compare optimized and unoptimized configurations.
+
+The analysis focuses on:
+
+* Accuracy
+* AUROC
+* Mean performance
+* Standard deviation
+* Statistical significance
+
+A **Student’s t-test** is used to compare the optimized XGBoost configuration against the unoptimized Softmax configuration.
+
+Multiple experimental runs can be used to estimate variability and determine whether observed performance differences are statistically meaningful.
+
+---
+
+# Explainability with SHAP
+
+SHAP is investigated for interpreting the XGBoost classifier.
+
+The XGBoost classifier receives the final fused feature representation rather than the original video frames or audio spectrograms.
+
+```text
+Raw Video / Audio
+       │
+       ▼
+Deep Neural Networks
+       │
+       ▼
+Feature Extraction
+       │
+       ▼
+Adaptive Fusion
+       │
+       ▼
+Fused Feature Vector
+       │
+       ▼
+XGBoost
+       │
+       ▼
+TreeSHAP
+```
+
+TreeSHAP can therefore provide feature-level explanations for the fused representation used by XGBoost.
+
+However, directly mapping the SHAP values back to individual video pixels, frames, audio frequency bands, or specific time points is not straightforward.
+
+The fused representation is produced through several nonlinear transformations involving:
+
+```text
+EfficientNetV2
+      +
+MobileNetV3
+      +
+Bi-GRU
+      +
+Attention Bi-LSTM
+      +
+Adaptive Fusion
+```
+
+Consequently, the SHAP interpretation is performed at the **fused-feature level**.
+
+---
+
+# Evaluation
+
+The framework evaluates classification performance using multiple metrics.
+
+| Metric           | Purpose                                                             |
+| ---------------- | ------------------------------------------------------------------- |
+| Accuracy         | Measures overall classification correctness                         |
+| Precision        | Measures correctness of positive predictions                        |
+| Recall           | Measures the ability to identify positive samples                   |
+| F1-score         | Balances Precision and Recall                                       |
+| FPR              | Measures incorrectly predicted positive negative samples            |
+| AUROC            | Measures discrimination capability across classification thresholds |
+| Loss             | Measures classification error                                       |
+| Computation Time | Measures computational cost                                         |
+
+---
+
+# Complete Pipeline
+
+```text
+                         ┌───────────────────┐
+                         │    Raw Dataset    │
+                         └─────────┬─────────┘
+                                   │
+                                   ▼
+                         ┌───────────────────┐
+                         │ Video Preprocessing│
+                         └─────────┬─────────┘
+                                   │
+                                   ▼
+                         ┌───────────────────┐
+                         │ Frame Extraction  │
+                         └─────────┬─────────┘
+                                   │
+                    ┌──────────────┴──────────────┐
+                    │                             │
+                    ▼                             ▼
+             EfficientNetV2                  MobileNetV3
+                    │                             │
+                    └──────────────┬──────────────┘
+                                   │
+                                   ▼
+                         Visual Representations
+                                   │
+                                   ▼
+                         ┌───────────────────┐
+                         │ Temporal Modeling │
+                         └─────────┬─────────┘
+                                   │
+                         ┌─────────┴─────────┐
+                         │                   │
+                         ▼                   ▼
+                      Bi-GRU          Attention Bi-LSTM
+                         │                   │
+                         └─────────┬─────────┘
+                                   │
+                                   ▼
                            Adaptive Fusion
-                                  │
-                                  ▼
+                                   │
+                                   ▼
                          Fused Deep Features
-                                  │
-                         ┌────────┴────────┐
-                         │                 │
-                         ▼                 ▼
-                      Softmax           XGBoost
-                       Baseline         Optimized
-                         │                 │
-                         └────────┬────────┘
-                                  ▼
+                                   │
+                    ┌──────────────┴──────────────┐
+                    │                             │
+                    ▼                             ▼
+                 Softmax                       XGBoost
+                Baseline                      Optimized
+                    │                             │
+                    └──────────────┬──────────────┘
+                                   │
+                                   ▼
                          Parkinson's Prediction
-                                  │
-                                  ▼
-                   Evaluation + Explainability
+                                   │
+                    ┌──────────────┴──────────────┐
+                    │                             │
+                    ▼                             ▼
+                Evaluation                  Explainability
+                    │                             │
+                    ▼                             ▼
+             Classification                   SHAP
+                Metrics
+```
 
-Project Structure
+---
 
-A recommended repository structure is:
+# Repository Structure
 
+```text
 multimodal-efficientnet-parkinsons/
 │
 ├── README.md
+├── requirements.txt
+├── LICENSE
 │
 ├── data/
 │   ├── youtube/
@@ -742,28 +774,34 @@ multimodal-efficientnet-parkinsons/
 │   └── turning/
 │
 ├── notebooks/
-│   ├── data_analysis/
+│   ├── dataset_analysis/
 │   ├── preprocessing/
 │   ├── baseline/
 │   ├── optimization/
 │   ├── ablation/
 │   ├── statistical_analysis/
-│   └── explainability/
+│   └── shap/
 │
 ├── src/
 │   ├── preprocessing/
+│   │   ├── video_loader.py
+│   │   └── audio_processor.py
+│   │
 │   ├── models/
 │   │   ├── efficientnet.py
 │   │   ├── mobilenet.py
 │   │   ├── bigru.py
 │   │   ├── attention_bilstm.py
-│   │   └── fusion.py
+│   │   └── adaptive_fusion.py
 │   │
 │   ├── classifiers/
 │   │   ├── softmax.py
 │   │   └── xgboost.py
 │   │
 │   └── evaluation/
+│       ├── metrics.py
+│       ├── ablation.py
+│       └── statistical_analysis.py
 │
 ├── checkpoints/
 │
@@ -774,108 +812,92 @@ multimodal-efficientnet-parkinsons/
 │   ├── statistical/
 │   └── shap/
 │
-└── requirements.txt
+└── figures/
+    ├── architecture/
+    ├── ablation/
+    └── shap/
+```
 
-Reproducibility
+---
+
+# Technologies
+
+* **Python**
+* **PyTorch**
+* **TorchVision**
+* **NumPy**
+* **Pandas**
+* **Scikit-learn**
+* **XGBoost**
+* **Optuna**
+* **SHAP**
+* **Matplotlib**
+* **Google Colab**
+* **Google Drive**
+
+---
+
+# Reproducibility
 
 For reproducible experimentation:
 
-Keep the raw datasets unchanged.
+1. Keep the raw datasets unchanged.
+2. Use fixed dataset splits.
+3. Record random seeds.
+4. Save trained model checkpoints.
+5. Save extracted feature representations.
+6. Save XGBoost hyperparameters.
+7. Save Optuna optimization results.
+8. Save evaluation metrics.
+9. Preserve ablation configurations.
+10. Save statistical analysis outputs.
+11. Save SHAP outputs and visualization files.
 
-Maintain fixed train, validation, and test splits.
+---
 
-Record random seeds for every experiment.
+# Project Workflow
 
-Save model checkpoints after training.
+```text
+Dataset Preparation
+        ↓
+Video Preprocessing
+        ↓
+Feature Extraction
+        ↓
+Temporal Modeling
+        ↓
+Adaptive Fusion
+        ↓
+Softmax Baseline
+        ↓
+XGBoost Optimization
+        ↓
+Ablation Study
+        ↓
+Statistical Analysis
+        ↓
+SHAP Explainability
+```
 
-Save extracted fused features when possible.
+---
 
-Store optimization results and selected hyperparameters.
+# Limitations
 
-Store all evaluation metrics.
+* The XGBoost classifier operates on learned fused features rather than directly on raw video frames.
+* SHAP explanations therefore describe the fused feature representation rather than individual pixels or audio-frequency components.
+* Direct attribution from the final fused features back to raw inputs is difficult because of the nonlinear transformations performed by the preceding neural networks.
+* The effectiveness of the framework depends on the characteristics, quality, and diversity of the available datasets.
+* The framework is intended as a research-oriented Parkinson’s disease detection system and should not be interpreted as a standalone clinical diagnostic tool.
 
-Preserve ablation configurations.
+---
 
-Save statistical-analysis outputs.
+# Research Summary
 
-Save SHAP results and plots.
+This project presents a **Multimodal Deep Learning Framework for Parkinson’s Disease Detection** that combines complementary visual feature extraction, temporal sequence modeling, adaptive feature fusion, and nonlinear classification.
 
-This allows the analysis to be recovered without unnecessarily repeating expensive feature extraction and model training.
+The core architecture integrates:
 
-Key Findings
-
-The reported experiments show that the multimodal architecture achieves strong classification performance.
-
-The baseline Softmax configuration achieved:
-
-Test Accuracy: 95.69%
-
-Test Precision: 98.25%
-
-Test Recall: 93.30%
-
-Test F1-score: 95.73%
-
-Test FPR: 1.79%
-
-Test AUROC: 99.52%
-
-The optimized XGBoost configuration achieved:
-
-Test Accuracy: 95.69%
-
-Test Precision: 98.25%
-
-Test Recall: 93.30%
-
-Test F1-score: 95.73%
-
-Test FPR: 1.79%
-
-Test AUROC: 98.76%
-
-The ablation study indicates that removing individual components changes the overall performance, with the removal of Attention Bi-LSTM producing the largest reduction in Accuracy and F1-score among the reported ablation configurations.
-
-The statistical analysis reported that the difference between the optimized and unoptimized configurations was not statistically significant.
-
-Strengths
-
-Multimodal representation learning
-
-Complementary visual feature extraction
-
-Bidirectional temporal modeling
-
-Attention-based temporal representation
-
-Adaptive feature fusion
-
-Nonlinear XGBoost classification
-
-Hyperparameter optimization using Optuna
-
-Comprehensive evaluation using multiple classification metrics
-
-Ablation-based component analysis
-
-SHAP-based interpretation of fused XGBoost features
-
-Limitations
-
-The SHAP analysis explains the final fused feature vector rather than directly explaining individual video pixels or audio-frequency components.
-
-The fused representation is produced through multiple nonlinear neural-network transformations, making direct attribution to the original raw modalities difficult.
-
-The reported statistical analysis did not demonstrate a significant performance improvement from optimization over the baseline.
-
-Dataset characteristics and modality availability should be considered when interpreting the generalizability of the results.
-
-Research Summary
-
-This project presents a multimodal Parkinson’s disease detection framework that combines deep visual representation learning, temporal sequence modeling, adaptive multimodal fusion, and nonlinear classification.
-
-The architecture combines:
-
+```text
 EfficientNetV2
       +
 MobileNetV3
@@ -887,36 +909,19 @@ Attention Bi-LSTM
 Adaptive Fusion
       +
 Softmax / XGBoost
+```
 
-The baseline Softmax model provides a strong reference point, while XGBoost is investigated as an alternative classifier operating on the fused deep representation.
+The framework investigates both conventional Softmax classification and XGBoost-based classification over the learned fused representation.
 
-The framework is further evaluated through ablation experiments, statistical comparison, and SHAP-based interpretation of the fused features.
+Additional experiments include:
 
-Technologies
+* XGBoost hyperparameter optimization using Optuna
+* Component-level ablation analysis
+* Statistical comparison of optimized and unoptimized configurations
+* SHAP-based interpretation of the fused feature representation
 
-Python
+The overall objective is to study how multimodal deep feature learning and adaptive fusion can be used to develop an automated Parkinson’s disease detection framework from video-based information.
 
-PyTorch
-
-TorchVision
-
-Scikit-learn
-
-XGBoost
-
-Optuna
-
-SHAP
-
-NumPy
-
-Pandas
-
-Matplotlib
-
-Google Colab
-
-Google Drive
 ---
 
 ## Citation
