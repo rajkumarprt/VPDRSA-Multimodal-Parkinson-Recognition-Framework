@@ -2,7 +2,6 @@
 
 A multimodal deep learning framework for automated Parkinson’s disease detection using video-based visual representations, temporal sequence modeling, adaptive feature fusion, and machine learning-based classification.
 
----
 
 ## Overview
 
@@ -222,68 +221,6 @@ The architecture also investigates whether replacing a conventional Softmax clas
                                     │
                                     ▼
                          Parkinson's Classification
-```
-
----
-
-# Dataset
-
-The project uses two Parkinson’s disease-related video datasets.
-
-## YouTube Dataset
-
-The YouTube dataset contains videos organized into positive and negative Parkinson’s disease classes.
-
-```text
-Youtube dataset/
-│
-├── Positive/
-│   ├── *.mp4
-│   └── ...
-│
-└── Negative/
-    ├── *.mp4
-    └── ...
-```
-
-The positive and negative samples enable supervised binary classification.
-
-The videos are processed to obtain frame sequences and, where available, audio information for multimodal representation learning.
-
----
-
-## Turning Dataset
-
-The Turning dataset consists of Parkinson’s-related turning movement videos.
-
-```text
-Turning dataset/
-│
-├── PDFE*.mp4
-├── PDFE*.mp4
-└── ...
-```
-
-The turning videos provide movement-related visual information relevant to Parkinson’s disease analysis.
-
----
-
-## Dataset Organization
-
-The datasets are organized under:
-
-```text
-/content/drive/MyDrive/ParkinsonDataset/
-│
-├── Turning dataset/
-│   └── PDFE*.mp4
-│
-└── Youtube dataset/
-    ├── Positive/
-    │   └── *.mp4
-    │
-    └── Negative/
-        └── *.mp4
 ```
 
 ---
